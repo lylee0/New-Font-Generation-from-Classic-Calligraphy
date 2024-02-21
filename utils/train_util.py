@@ -212,7 +212,7 @@ class TrainLoop:
 
     def forward_backward(self, batch, cond):
         self.mp_trainer.zero_grad()
-
+        # need to add content encoder
         sty_batch = batch[1]
         batch = batch[0]
         assert batch.shape[0] == sty_batch.shape[0]
