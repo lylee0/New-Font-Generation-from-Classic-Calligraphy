@@ -161,7 +161,7 @@ class ImageDataset(Dataset):
             if self.chars_stroke is not None:
                 out_dict["stroke"] = self.chars_stroke[self.local_classes[idx]]
                 out_dict["mask_stroke"] = False
-            return [np.transpose(arr, [2, 0, 1]), np.transpose(sty_arr, [2, 0, 1])], out_dict
+            return [np.transpose(arr, [2, 0, 1]), np.transpose(sty_arr, [2, 0, 1])], out_dict  # [batch, sty_batch, condition] ******
 
         return np.transpose(arr, [2, 0, 1]), out_dict
 
