@@ -157,7 +157,6 @@ class ImageDataset(Dataset):
         return len(self.local_images)
 
     def __getitem__(self, idx):
-        # ?????
         path = self.local_images[idx]
         with bf.BlobFile(path, "rb") as f:
             pil_image = Image.open(f)
@@ -181,8 +180,9 @@ class ImageDataset(Dataset):
 
         # style
         if self.style_classes is not None:
-            sty_img_idxs = self.sty_classes_idxs[self.style_classes[idx]]
-            rand_sty_idx = np.random.choice(sty_img_idxs)
+            # len(self.sty_classes_idxs) = 19
+            sty_img_idxs = self.sty_classes_idxs[self.style_classes[idx]] #len(self.style_classes) = 56916
+            rand_sty_idx = np.random.choice(sty_img_idxs) # sty_img_idxs is an array
             sty_img_path = self.local_images[rand_sty_idx]
             with bf.BlobFile(sty_img_path, "rb") as f:
                 sty_pil_image = Image.open(f)
@@ -192,16 +192,14 @@ class ImageDataset(Dataset):
             sty_arr = sty_arr.astype(np.float32) / 127.5 - 1
 
             # content
-            #con_img_idxs = self.con_classes_idxs[self.content_classes[idx]]
-            rand_con_idx = np.random.choice(self.content_classes)
-            #rand_con_idx = np.random.choice(con_img_idxs)
-            con_img_path = self.local_contents[rand_con_idx]
-            with bf.BlobFile(con_img_path, "rb") as f:
-                con_pil_image = Image.open(f)
-                con_pil_image.load()
-            con_pil_image = con_pil_image.convert("RGB")
-            con_arr = center_crop_arr(con_pil_image, self.resolution)
-            con_arr = con_arr.astype(np.float32) / 127.5 - 1            
+            if self.local_contents is not None:
+                con_img_path = self.local_contents[self.local_classes[idx]]
+                with bf.BlobFile(con_img_path, "rb") as f:
+                    con_pil_image = Image.open(f)
+                    con_pil_image.load()
+                con_pil_image = con_pil_image.convert("RGB")
+                con_arr = center_crop_arr(con_pil_image, self.resolution)
+                con_arr = con_arr.astype(np.float32) / 127.5 - 1            
 
             # stroke
             if self.chars_stroke is not None:
