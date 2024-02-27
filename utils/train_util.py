@@ -108,7 +108,7 @@ class TrainLoop:
                 output_device=dist_util.dev(),
                 broadcast_buffers=False,
                 bucket_cap_mb=128,
-                find_unused_parameters=True,
+                find_unused_parameters=find_unused_parameters,
             )
         else:
             if dist.get_world_size() > 1:
@@ -212,7 +212,8 @@ class TrainLoop:
 
     def forward_backward(self, batch, cond):
         self.mp_trainer.zero_grad()
-        # need to add content encoder
+
+        con_batch = batch[2]    # add for content encoding
         sty_batch = batch[1]
         batch = batch[0]
         assert batch.shape[0] == sty_batch.shape[0]
@@ -225,6 +226,10 @@ class TrainLoop:
             }
             micro_sty = sty_batch[i: i + self.microbatch].to(dist_util.dev())
             micro_cond['sty'] = self.ddp_model.module.sty_encoder(micro_sty.clone().detach())
+
+            # content encoding
+            micro_con = con_batch[i: i + self.microbatch].to(dist_util.dev())
+            micro_cond['y'] = self.ddp_model.module.con_encoder(micro_con.clone().detach())
 
             last_batch = (i + self.microbatch) >= batch.shape[0]
             t, weights = self.schedule_sampler.sample(micro.shape[0], dist_util.dev())
