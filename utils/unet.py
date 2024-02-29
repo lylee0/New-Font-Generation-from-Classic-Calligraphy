@@ -609,7 +609,8 @@ class UNetWithStyEncoderModel(nn.Module):
 
         # Content Embedding
         con_emb = th.zeros([emb.shape[0], self.con_emb_dim], device=emb.device)
-        con_emb[(~mask_y) | (~mask_stroke)] = self.con_emb(sty[(~mask_y) | (~mask_stroke)])
+        #con_emb[(~mask_y) | (~mask_stroke)] = self.con_emb(y[(~mask_y) | (~mask_stroke)])
+        con_emb[~mask_y] = self.con_emb(y[~mask_y])
 
         # Stroke Embedding
         stroke_emb = th.zeros([emb.shape[0], self.stroke_emb_dim], device=emb.device)
