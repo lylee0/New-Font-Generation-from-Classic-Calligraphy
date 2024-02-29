@@ -79,20 +79,21 @@ def main():
     logger.log("creating data loader...")
     data = load_data(
         data_dir=cfg.data_dir,
+        content_dir=cfg.content_dir,
         batch_size=cfg.batch_size,
         image_size=cfg.image_size,
         stroke_path=cfg.stroke_path,
         classifier_free=classifier_free,
     )
 
-    # for content encoder
+    '''# for content encoder
     data = load_data(
         data_dir=cfg.content_dir,
         batch_size=cfg.batch_size,
         image_size=cfg.image_size,
         stroke_path=cfg.stroke_path,
         classifier_free=classifier_free,
-    )
+    )'''
 
     # train
     logger.log("training...")
