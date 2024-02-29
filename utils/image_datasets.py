@@ -192,8 +192,15 @@ class ImageDataset(Dataset):
             sty_arr = sty_arr.astype(np.float32) / 127.5 - 1
 
             # content
+            #self.content_classes[idx] index out of range
+            # len(self.con_classes_idxs) = 3000
+            #con_img_idxs = self.con_classes_idxs[self.content_classes[idx]] # len(self.content_classes)=3000
+            #rand_con_idx = np.random.choice(con_img_idxs)
+            #rand_con_idx = np.random.choice(self.content_classes)
+            
             if self.local_contents is not None:
                 con_img_path = self.local_contents[self.local_classes[idx]]
+                #con_img_path = self.local_contents[rand_con_idx]
                 with bf.BlobFile(con_img_path, "rb") as f:
                     con_pil_image = Image.open(f)
                     con_pil_image.load()
