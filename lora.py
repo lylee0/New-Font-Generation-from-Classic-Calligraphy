@@ -158,7 +158,7 @@ class LoraInjectedConv2d(nn.Module):
 
 UNET_DEFAULT_TARGET_REPLACE = {"CrossAttention", "Attention", "GEGLU"}
 
-UNET_EXTENDED_TARGET_REPLACE = {"ResnetBlock2D", "CrossAttention", "Attention", "GEGLU"}
+UNET_EXTENDED_TARGET_REPLACE = {"ResnetBlock2D", "CrossAttention", "Attention", "GEGLU", "ResBlock", "AttentionBlock"}
 
 TEXT_ENCODER_DEFAULT_TARGET_REPLACE = {"CLIPAttention"}
 
@@ -326,9 +326,9 @@ def inject_trainable_lora_extended(
         loras = torch.load(loras)
 
     for _module, name, _child_module in _find_modules(
-        model, target_replace_module, search_class=[nn.Linear, nn.Conv2d]
+        model, target_replace_module, search_class=[nn.Linear, nn.Conv2d, nn.Conv1d]
     ):
-        if _child_module.__class__ == nn.Linear:
+        if _child_module.__class__ == nn.Linear or _child_module.__class__ == nn.Conv1d:
             weight = _child_module.weight
             bias = _child_module.bias
             _tmp = LoraInjectedLinear(
