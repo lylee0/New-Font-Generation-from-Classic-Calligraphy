@@ -2,7 +2,7 @@
 Generate a new computer font based on Lanting Xu by Wang Xizhi <br>
 Total training steps: 500,000<br>
 LoRA finetuning steps: 100<br>
-Content images: <br>
+Content images: content.zip<br>
 Style images: <br>
 Lantingxu dataset: <br>
 Use lan.png or wing.png for sampling
