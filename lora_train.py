@@ -11,16 +11,14 @@ from utils.train_util import TrainLoop
 import torch as th
 from attrdict import AttrDict
 import yaml
-
-from lora_diffusion import inject_trainable_lora, extract_lora_ups_down
+from lora import inject_trainable_lora_extended
 import itertools
-from utils.unet import UNetWithStyEncoderModel
 
 def main():
 
     # read input command
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg_path', type=str, default='./cfg/lora_cfg.yaml',
+    parser.add_argument('--cfg_path', type=str, default='./cfg/train_cfg.yaml',
                         help='config file path')
     parser = parser.parse_args()
 
@@ -56,28 +54,47 @@ def main():
     model.to(dist_util.dev())
     schedule_sampler = create_named_schedule_sampler(cfg.schedule_sampler, diffusion)
 
-    # froze style encoder
-    for p in model.sty_encoder.parameters():
-        p.requires_grad = False
-
-    # load content encoder??
-    # froze content encoder??
-    for p in model.con_encoder.parameters():
-        p.requires_grad = False
-
-    '''unet = UNetWithStyEncoderModel.from_pretrained(
-        'model420000.pt',
-        subfolder="trained_models_content",
-    )'''
-
     unet = model
     unet.requires_grad_(False)
-    unet_lora_params, train_names = inject_trainable_lora(unet)  # This will
+    unet_lora_params, train_names = inject_trainable_lora_extended(unet)  # This will
     # turn off all of the gradients of unet, except for the trainable LoRA params. #, text_encoder.parameters()
-    print(unet_lora_params)
+    #print(unet_lora_params)
     optimizer = th.optim.Adam(
         itertools.chain(*unet_lora_params), lr=1e-4
     )
+
+    # load data
+    logger.log("creating data loader...")
+    data = load_data(
+        data_dir=cfg.data_dir,
+        content_dir=cfg.content_dir,
+        batch_size=cfg.batch_size,
+        image_size=cfg.image_size,
+        stroke_path=cfg.stroke_path,
+        classifier_free=classifier_free,
+    )
+
+    # train
+    logger.log("training...")
+    TrainLoop(
+        model=model,
+        diffusion=diffusion,
+        data=data,
+        batch_size=cfg.batch_size,
+        microbatch=cfg.microbatch,
+        lr=cfg.lr,
+        ema_rate=cfg.ema_rate,
+        log_interval=cfg.log_interval,
+        save_interval=cfg.save_interval,
+        train_step=train_step,
+        resume_checkpoint=cfg.resume_checkpoint,
+        use_fp16=cfg.use_fp16,
+        fp16_scale_growth=cfg.fp16_scale_growth,
+        schedule_sampler=schedule_sampler,
+        weight_decay=cfg.weight_decay,
+        classifier_free=classifier_free,
+        total_train_step=total_train_step
+    ).run_loop()
 
 # create configuration cfg from cfg.yaml
 def create_cfg(cfg):
