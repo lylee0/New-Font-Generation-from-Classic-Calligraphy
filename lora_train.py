@@ -86,16 +86,16 @@ def main():
     )
 
     #unet = 
-    trainloop.model.requires_grad_(True)
+    trainloop.model.requires_grad_(False)
     unet_lora_params, train_names = inject_trainable_lora_extended(trainloop.model)  # This will
     # turn off all of the gradients of unet, except for the trainable LoRA params. #, text_encoder.parameters()
     #print(unet_lora_params)
         # froze style encoder
-    for p in trainloop.model.sty_encoder.parameters():
+    '''for p in trainloop.model.sty_encoder.parameters():
         p.requires_grad = False
         # froze style encoder
     for p in trainloop.model.con_encoder.parameters():
-        p.requires_grad = False
+        p.requires_grad = False'''
     trainloop.opt = th.optim.Adam(
         itertools.chain(*unet_lora_params), lr=1e-4
     )
