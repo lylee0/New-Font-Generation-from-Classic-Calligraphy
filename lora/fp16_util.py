@@ -165,8 +165,8 @@ class MixedPrecisionTrainer:
         if self.use_fp16:
             loss_scale = 2 ** self.lg_loss_scale
             (loss * loss_scale).backward()
-        else:
-            loss.backward()
+        #else:
+            #loss.backward()
 
     def optimize(self, opt: th.optim.Optimizer):
         if self.use_fp16:
