@@ -54,15 +54,6 @@ def main():
     model.to(dist_util.dev())
     schedule_sampler = create_named_schedule_sampler(cfg.schedule_sampler, diffusion)
 
-    unet = model
-    unet.requires_grad_(False)
-    unet_lora_params, train_names = inject_trainable_lora_extended(unet)  # This will
-    # turn off all of the gradients of unet, except for the trainable LoRA params. #, text_encoder.parameters()
-    #print(unet_lora_params)
-    optimizer = th.optim.Adam(
-        itertools.chain(*unet_lora_params), lr=1e-4
-    )
-
     # load data
     logger.log("creating data loader...")
     data = load_data(
@@ -74,9 +65,7 @@ def main():
         classifier_free=classifier_free,
     )
 
-    # train
-    logger.log("training...")
-    TrainLoop(
+    trainloop = TrainLoop(
         model=model,
         diffusion=diffusion,
         data=data,
@@ -94,7 +83,27 @@ def main():
         weight_decay=cfg.weight_decay,
         classifier_free=classifier_free,
         total_train_step=total_train_step
-    ).run_loop()
+    )
+
+    #unet = 
+    trainloop.model.requires_grad_(True)
+    unet_lora_params, train_names = inject_trainable_lora_extended(trainloop.model)  # This will
+    # turn off all of the gradients of unet, except for the trainable LoRA params. #, text_encoder.parameters()
+    #print(unet_lora_params)
+        # froze style encoder
+    for p in trainloop.model.sty_encoder.parameters():
+        p.requires_grad = False
+        # froze style encoder
+    for p in trainloop.model.con_encoder.parameters():
+        p.requires_grad = False
+    trainloop.opt = th.optim.Adam(
+        itertools.chain(*unet_lora_params), lr=1e-4
+    )
+
+    # train
+    trainloop.setup(unet_lora_params)
+    logger.log("training...")
+    trainloop.run_loop()
 
 # create configuration cfg from cfg.yaml
 def create_cfg(cfg):
