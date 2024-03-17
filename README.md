@@ -1,8 +1,8 @@
 # New-Font-Generation-from-Classic-Calligraphy
 Generate a new computer font based on Lanting Xu by Wang Xizhi <br>
 Required packages: <br>
-Immage size: 80
-Total number of characters: 3000
+Image size: 80<br>
+Total number of characters: 3000<br>
 Total training steps: 500,000<br>
 LoRA finetuning steps: 100<br>
 Content images (for content encoder): content.zip<br>
@@ -17,5 +17,9 @@ For LoRA finetuning (use files in ./lora instead):<br>
 Modified lora_train.py, lora.py, fp16_util.py, train_util.py, sample.py<br>
 Run lora_train.py and train for 100 steps<br>
 <br>
-Finetune without LoRA:<br>
-Train the model for extra 8,000 steps with the lantingxu dataset only
+Finetune without using LoRA:<br>
+Train the model for extra 8,000 steps with the lantingxu dataset only<br>
+<br>
+Image Upscaling:<br>
+Run upscale.py in upscale<br>
+Put the sample images in ./images
