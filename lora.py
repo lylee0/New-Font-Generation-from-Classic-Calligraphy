@@ -69,6 +69,91 @@ class LoraInjectedLinear(nn.Module):
             self.lora_up.weight.device
         ).to(self.lora_up.weight.dtype)
 
+class LoraInjectedConv1d(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size,
+        stride=1,
+        padding=0,
+        dilation=1,
+        groups: int = 1,
+        bias: bool = True,
+        r: int = 4,
+        dropout_p: float = 0.1,
+        scale: float = 1.0,
+    ):
+        super().__init__()
+        if r > min(in_channels, out_channels):
+            raise ValueError(
+                f"LoRA rank {r} must be less or equal than {min(in_channels, out_channels)}"
+            )
+        self.r = r
+        self.conv = nn.Conv1d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            bias=bias,
+        )
+
+        self.lora_down = nn.Conv1d(
+            in_channels=in_channels,
+            out_channels=r,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+            dilation=dilation,
+            groups=groups,
+            bias=False,
+        )
+        self.dropout = nn.Dropout(dropout_p)
+        self.lora_up = nn.Conv1d(
+            in_channels=r,
+            out_channels=out_channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=False,
+        )
+        self.selector = nn.Identity()
+        self.scale = scale
+
+        nn.init.normal_(self.lora_down.weight, std=1 / r)
+        nn.init.zeros_(self.lora_up.weight)
+
+    def forward(self, input):
+        return (
+            self.conv(input)
+            + self.dropout(self.lora_up(self.selector(self.lora_down(input))))
+            * self.scale
+        )
+
+    def realize_as_lora(self):
+        return self.lora_up.weight.data * self.scale, self.lora_down.weight.data
+
+    def set_selector_from_diag(self, diag: torch.Tensor):
+        # diag is a 1D tensor of size (r,)
+        assert diag.shape == (self.r,)
+        self.selector = nn.Conv1d(
+            in_channels=self.r,
+            out_channels=self.r,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            bias=False,
+        )
+        self.selector.weight.data = torch.diag(diag)
+
+        # same device + dtype as lora_up
+        self.selector.weight.data = self.selector.weight.data.to(
+            self.lora_up.weight.device
+        ).to(self.lora_up.weight.dtype)
+    
 
 class LoraInjectedConv2d(nn.Module):
     def __init__(
@@ -154,7 +239,6 @@ class LoraInjectedConv2d(nn.Module):
         self.selector.weight.data = self.selector.weight.data.to(
             self.lora_up.weight.device
         ).to(self.lora_up.weight.dtype)
-
 
 UNET_DEFAULT_TARGET_REPLACE = {"CrossAttention", "Attention", "GEGLU"}
 
@@ -328,7 +412,7 @@ def inject_trainable_lora_extended(
     for _module, name, _child_module in _find_modules(
         model, target_replace_module, search_class=[nn.Linear, nn.Conv2d, nn.Conv1d]
     ):
-        if _child_module.__class__ == nn.Linear or _child_module.__class__ == nn.Conv1d:
+        if _child_module.__class__ == nn.Linear:
             weight = _child_module.weight
             bias = _child_module.bias
             _tmp = LoraInjectedLinear(
@@ -339,7 +423,8 @@ def inject_trainable_lora_extended(
             )
             _tmp.linear.weight = weight
             if bias is not None:
-                _tmp.linear.bias = bias
+                _tmp.linear.bias = bias    
+         
         elif _child_module.__class__ == nn.Conv2d:
             weight = _child_module.weight
             bias = _child_module.bias
@@ -354,10 +439,27 @@ def inject_trainable_lora_extended(
                 _child_module.bias is not None,
                 r=r,
             )
-
             _tmp.conv.weight = weight
             if bias is not None:
                 _tmp.conv.bias = bias
+        elif _child_module.__class__ == nn.Conv1d:
+            weight = _child_module.weight
+            bias = _child_module.bias
+            _tmp = LoraInjectedConv1d(
+                _child_module.in_channels,
+                _child_module.out_channels,
+                _child_module.kernel_size,
+                _child_module.stride,
+                _child_module.padding,
+                _child_module.dilation,
+                _child_module.groups,
+                _child_module.bias is not None,
+                r=r,
+            )
+            _tmp.conv.weight = weight
+            if bias is not None:
+                _tmp.conv.bias = bias    
+        
 
         # switch the module
         _tmp.to(_child_module.weight.device).to(_child_module.weight.dtype)
