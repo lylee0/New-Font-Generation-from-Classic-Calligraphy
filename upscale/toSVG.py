@@ -19,6 +19,10 @@ builder = aw.DocumentBuilder(doc)
 
 save_path = "./upscaled_svg"
 
+if not os.path.exists(save_path):
+    # Create the folder
+    os.makedirs(save_path)
+
 for i in range(len(png_files)):
     file = png_files[i]
     shape = builder.insert_image(file)
