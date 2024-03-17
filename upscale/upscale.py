@@ -30,6 +30,12 @@ f.close()'''
 
 model = DrlnModel.from_pretrained('eugenesiow/drln', scale=4)
 
+output_folder = './upscaled_images'
+
+if not os.path.exists(output_folder):
+    # Create the folder
+    os.makedirs(output_folder)
+
 for i in range(len(png_files)):
 
     image = Image.open(png_files[i])
@@ -37,10 +43,6 @@ for i in range(len(png_files)):
     preds = model(inputs)
     preds = model(preds)
     
-
-    # Specify the output folder
-    output_folder = './upscaled_images'
-
     # Ensure the output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
