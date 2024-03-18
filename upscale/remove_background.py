@@ -37,6 +37,8 @@ for i in range(len(png_files)):
 
             if r > threshold and g > threshold and b > threshold:
                 pixels[x, y] = (r, g, b, 0)  # Set the pixel to transparent
+            if a != 0:
+                pixels[x, y] = (0, 0, 0, a)
 
     character_name = os.path.splitext(os.path.basename(png_files[i]))[0][0]
     file_name = "{}.png".format(i)
