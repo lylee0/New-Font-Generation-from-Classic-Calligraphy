@@ -22,4 +22,7 @@ Train the model for extra 8,000 steps with the lantingxu dataset only<br>
 <br>
 Image Upscaling:<br>
 Run upscale.py in upscale<br>
-Put the sample images in ./images
+Put the sample images in ./images<br>
+<br>
+Remove image background<br>
+Run remove_backgound.py
