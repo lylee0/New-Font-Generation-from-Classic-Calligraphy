@@ -25,4 +25,6 @@ Run upscale.py in upscale<br>
 Put the sample images in ./images<br>
 <br>
 Remove image background<br>
-Run remove_backgound.py
+Run remove_backgound.py<br>
+
+![Alt text](./images/black.png?raw=true "Black Lanting Xu")
