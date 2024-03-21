@@ -27,4 +27,8 @@ Put the sample images in ./images<br>
 Remove image background<br>
 Run remove_backgound.py<br>
 
-![Alt text](./images/black.png?raw=true "Black Lanting Xu")
+Black Lanting Xu<br>
+![Alt text](./images/black.png?raw=true)
+<br>
+Red and Yellow Lanting Xu<br>
+![Alt text](./images/red_yellow.png?raw=true)
