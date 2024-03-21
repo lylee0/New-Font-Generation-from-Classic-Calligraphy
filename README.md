@@ -27,8 +27,17 @@ Put the sample images in ./images<br>
 Remove image background<br>
 Run remove_backgound.py<br>
 
-Black Lanting Xu<br>
+Lanting Xu with template<br>
+![Alt text](./images/with_template.png?raw=true)
+
+<br>Black and white Lanting Xu<br>
 ![Alt text](./images/black.png?raw=true)
-<br>
-Red and Yellow Lanting Xu<br>
+
+<br>Red and yellow Lanting Xu<br>
 ![Alt text](./images/red_yellow.png?raw=true)
+
+<br>Red and black Lanting Xu<br>
+![Alt text](./images/red_black.png?raw=true)
+
+<br>Red and white Lanting Xu<br>
+![Alt text](./images/white_red.png?raw=true)
