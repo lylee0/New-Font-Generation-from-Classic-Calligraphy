@@ -6,7 +6,7 @@ Total number of characters: 3000<br>
 Total training steps: 500,000<br>
 LoRA finetuning steps: 100<br>
 Content images (for content encoder): content.zip<br>
-Style images (for diffusion model and style encoder): <br>
+Style images (for diffusion model and style encoder): https://mycuhk-my.sharepoint.com/:u:/g/personal/1155158772_link_cuhk_edu_hk/EQXTMdCmKWdNmF4dcI_QleAB_ZUo39Ib0wHSovFu_CePLg?e=wUQefi<br>
 Lantingxu dataset (for LoRA fintune): lantingxu_resized<br>
 Use lan.png or wing.png for sampling (or any images of lantingxu)<br>
 <br>
