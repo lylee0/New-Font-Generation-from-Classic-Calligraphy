@@ -1,4 +1,4 @@
-data_dir: './../dataset_final'
+data_dir: './lantingxu_resized'
 content_dir: './../content'
 chara_nums: 3000
 diffusion_steps: 1000
@@ -9,13 +9,13 @@ num_res_blocks: 3
 lr: 0.0001
 batch_size: 16
 log_interval: 250
-save_interval: 3000
-train_step: 420000
+save_interval: 1000
+train_step: 508000 #420000
 attention_resolutions: '40, 20, 10'
 sty_encoder_path: './pretrained_models/chinese_styenc.ckpt'
-con_encoder_path: './content_encoder_2/content_encoder.pt'
-model_save_dir: './trained_models_content'
+con_encoder_path: './content_encoder_web/content_encoder.pt'
+model_save_dir: './trained_models_web'
 stroke_path: 'strokelist.txt'
 classifier_free: False
 total_train_step: 800000
-resume_checkpoint: '' #"./trained_models/model420000.pt"
+resume_checkpoint: './trained_models_content/model500000.pt'
