@@ -5,18 +5,18 @@ noise_schedule: 'linear'
 image_size: 80
 num_channels: 128
 num_res_blocks: 3
-batch_size: 1 #5
-num_samples: 10
+batch_size: 1 #5 do not change
+num_samples: 210 #210 # number of characters to be generated
 attention_resolutions: '40, 20, 10'
 use_ddim: True
 timestep_respacing: ddim25
-stroke_path: './strokelist.txt'
-model_path: './trained_models/ema_0.9999_336000.pt'
-sty_img_path: './lan.png'
-con_folder_path: './gen_text'
-gen_text_stroke_path: './gen_text_stroke.txt'
-total_txt_file: './wordlist.txt'
-img_save_path: './result'
+stroke_path: './strokelist.txt' # do not change
+model_path: './trained_models_finetune/ema_0.9999_508000.pt' # trained model
+sty_img_path: './lan.png' # style image
+con_folder_path: './lantingxu_content' #'/research/d2/fyp23/lylee0/dataset_final_CH/id_19_CH' # image of character to be generated
+gen_text_stroke_path: './lantingxu.txt' # stroke encoding of characters to be generated
+total_txt_file: './wordlist.txt' # do not change 
+img_save_path: './result_web' # directory to save generated images
 classifier_free: False
 cont_scale: 3.0
 sk_scale: 3.0
